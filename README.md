@@ -62,5 +62,119 @@
      - 两个例子
        - Circle的定义：<img width="745" height="347" alt="image" src="https://github.com/user-attachments/assets/7092584b-97bf-4490-b9e0-5b5451f8636f" />
        - 复数的定义：<img width="702" height="324" alt="image" src="https://github.com/user-attachments/assets/c9b9517e-c200-4d19-9192-b33af98bdfbb" />
+### 1.3 抽象数据类型的表示与实现
+在本门课程的学习过程中，我们使用类C语言（介于伪码和C语言之间）作为描述工具
+1. 抽象数据类型复数的实现：
+   ```c
+   typedef struct {
+    float realpart;//实部
+    float imagpart;//虚部
+   }Complex;//定义复数抽象类型
+   void assign(Complex* A, float real, float imag);   /* 赋值 */
+   void add(Complex* A, float real, float imag);   /* A + B */
+   void minus(Complex* A, float real, float imag);  /* A - B */
+   void multiply(Complex* A, float real, float imag);/* A * B */
+   void divide(Complex* A, float real, float imag);  /* A / B */
+   void assign(Complex* A, float real, float imag) {
+       A->realpart = real;           /* 实部赋值 */
+       A->imagpart = imag;            /* 虚部赋值 */
+       /* End of assign() */
+   }
+   
+   void add(Complex* c, Complex A, Complex B) {   /* c = A + B */
+       c->realpart = A.realpart + B.realpart;   /* 实部相加 */
+       c->imagpart = A.imagpart + B.imagpart;    /* 虚部相加 */
+       /* End of Add() */
+   }
+   ```
+### 1.4 算法和算法分析
+1. 算法五个特性：有穷性，确定性，可行性，输入(>=0)，输出(>=1)
+2. 算法设计的要求：正确性，可读性，健壮性，高效性
+3. 判断好的算法：首先满足正确性，可读性，健壮性，然后主要考虑**算法的效率**
+   - 时间效率和空间效率
+   - 算法时间效率的度量：在计算机上执行所消耗的时间
+     - 算法运行时间 = $\sum$每条语句的执行次数（语句频度）×该语句执行一次所需的时间
+       - 注：我们假设执行每条语句所需的时间均为单位时间，因此可以直接比较每条语句的频度之和
+       - 算法描述（两个 n $\times$ n 矩阵相乘）：
+         ```c
+         for(i=1; i<=n; i++)          // n+1 次  
+            for(j=1; j<=n; j++) {      //  n(n+1) 次  
+               c[i][j] = 0;           //  $n^2$ 次  
+               for(k=0; k<n; k++) {   // $n^2(n+1)$ 次  
+                  c[i][j] += a[i][k] * b[k][j];  //  n^3  次  
+               }  
+            }  
+         ```
 
- 
+         每条语句的频度之和：T(n) = 2n^3 + 3n^2 + 2n + 1
+   - 为了便于比较不同算法的时间效率，我们仅比较他们的数量级
+     - 若有某个辅助函数 f(n)，使得当 n 趋近于无穷大时，T(n)/f(n) 的极限值为不等于零的常数，则称 f(n) 是 T(n) 的同数量级函数。记作 T(n) = O(f(n))，称 O(f(n)) 为算法的渐进时间复杂度（O 是数量级的符号），简称时间复杂度。
+   - 分析时间复杂度的基本方法
+     - e.g.
+       代码结构：
+       ```c
+       for (i=1; i<=n; i++) {
+          for (j=1; j<=i; j++) {
+             for (k=1; k<=j; k++) {
+                x = x + 1;  // 语句频度计算对象
+             }
+          }
+       }
+       ```
+       数学表达式：
+语句频度 = $\sum_{i=1}^{n} \sum_{j=1}^{i} \sum_{k=1}^{j} 1 = \sum_{i=1}^{n} \sum_{j=1}^{i} j = \sum_{i=1}^{n} \frac{i(i+1)}{2}$
+​       - 注：从这里可以看出改用级数求和比较便于计算
+     - e.g.
+       代码结构：
+       ```c
+       i = 1;
+       while(i <= n) {
+          i *= 2;
+       }
+       ```
+       思路：这里时间复杂度的本质是**执行次数**，因此不妨令执行次数为x，即**若循环执行x次，则i = 2^x**，而**若循环能够执行，则i <= n，即2^x <= n**，故x <= $\log_{2}(n)$，因此时间复杂度O( $\log_{2}(n)$ )
+       - 注：我们在时间复杂度中一般不加区分对数的底数
+     - e.g.
+       代码结构：
+       ```c
+       for(i = 0; i < n; i++) {
+          if(a[i] == e) {
+             return i + 1;
+          }
+          return 0;
+       }
+       ```
+       这个例子说明算法中基本操作重复执行的次数还随问题输入数据集不同而不同
+
+       因此出现最坏时间复杂度，平均时间复杂度，最好时间复杂度
+
+       此外，对于复杂的算法，可以将它分成几个容易估算的部分，然后利用加法法则和乘法法则，计算算法的时间复杂度
+       1. 加法法则
+       T(n) = T1(n) + T2(n) = O(F(n)) + O(g(n)) = O(max(f(n), g(n)))
+       2. 乘法法则
+       T(n) = T1(n) * T2(n) = O(F(n)) * O(g(n)) = O(f(n)*g(n))
+   - 算法时间效率的比较
+     - 当n很大时，指数时间算法所需时间 >> 多项式时间算法所需时间
+     - 1 < logn < n < nlogn < n^2 < n^3 < 2^n < n!
+   - 算法空间效率的度量——（渐近）空间复杂度
+     - 算法要占据的空间：算法本身要占据的空间，输入/输出，指令，常数，变量等以及算法要使用的辅助空间
+     - e.g.将一维数组a中的n个数逆序存放在原数组中
+       ```c
+       //算法一
+       for(i = 0; i < n/2; i++) {
+          t = a[i];
+          a[i] = a[n - i - 1];
+          a[n - i - 1] = t;
+       }
+       ```
+       这里t就是辅助空间 S(n) = O(1)（原地工作），只用了一个变量
+       ```c
+       //算法二
+       for(i = 0; i < n; i++) {
+          b[i] = a[n - i - 1];
+       }
+       for(i = 0; i < n; i++) {
+          a[i] = b[i];
+       }
+       ```
+       S(n) = O(n)
