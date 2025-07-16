@@ -1,4 +1,4 @@
-# data-structures-algorithms-notes
+# chapter1 - notes
 ## 一、绪论
 ### 1.2 基本概念和术语
 
